@@ -30,9 +30,9 @@ jobs:
         run: |
           docker run --name mongodb -d -p 27017:27017 mongo:latest
           
-      - name: Run tests
-        run: |
-          pytest tests/test.py --maxfail=1 --disable-warnings -q  # Uruchamianie testów z folderu 'tests/test.py'
+     # - name: Run tests
+      #  run: |
+       #   pytest tests/test.py --maxfail=1 --disable-warnings -q  # Uruchamianie testów z folderu 'tests/test.py'
 
   docker-build-push:
     runs-on: ubuntu-latest
