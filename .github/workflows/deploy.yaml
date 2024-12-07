@@ -24,11 +24,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r api/requirements.txt  # Wskazanie ścieżki do pliku w folderze 'api'
+          pip install -r api/requirements.txt  # Upewnij się, że ścieżka do pliku requirements.txt jest poprawna
 
+      - name: Set up MongoDB (optional, for local testing)
+        run: |
+          docker run --name mongodb -d -p 27017:27017 mongo:latest
+          
       - name: Run tests
         run: |
-          pytest
+          pytest tests/test.py --maxfail=1 --disable-warnings -q  # Uruchamianie testów z folderu 'tests/test.py'
 
   docker-build-push:
     runs-on: ubuntu-latest
