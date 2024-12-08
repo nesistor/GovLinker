@@ -81,7 +81,7 @@ def process_image_with_grok(base64_image: str) -> dict:
                     },
                     {
                         "type": "text",
-                        "text": "Extract and validate all fields in this document.",
+                        "text": "Extract and validate all fields in this document match to headlines?",
                     },
                 ],
             }
