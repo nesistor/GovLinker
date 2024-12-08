@@ -24,20 +24,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r api/requirements.txt  # Upewnij się, że ścieżka do pliku requirements.txt jest poprawna
+          pip install -r requirements.txt
 
-      # MongoDB z zewnętrznego rejestru
-      - name: Set up MongoDB (optional, for local testing)
+      - name: Run tests
         run: |
-          docker run --name mongodb -d -p 27017:27017 \
-            -e MONGO_INITDB_ROOT_USERNAME=admin \
-            -e MONGO_INITDB_ROOT_PASSWORD=password \
-            -e MONGO_INITDB_DATABASE=government_data \
-            mongo:4.2.16-bionic
-
-     # - name: Run tests
-     #   run: |
-     #     pytest tests/test.py --maxfail=1 --disable-warnings -q  
+          pytest tests/ --disable-warnings -q  
 
   docker-build-push:
     runs-on: ubuntu-latest
@@ -58,14 +49,11 @@ jobs:
 
       - name: Build Docker image for government-assistant-api
         run: |
-          docker build -t us-central1-docker.pkg.dev/government-assistant-001/my-repo/government-assistant-api -f govgiggler.dockerfile .
+          docker build -t us-central1-docker.pkg.dev/government-assistant-001/your-repo/government-assistant-api -f Dockerfile .
 
-      # MongoDB z zewnętrznego rejestru - nie musisz budować obrazu
-      # Jeśli MongoDB jest już uruchomione w kontenerze (powyższy krok), nie musisz go budować.
-      
       - name: Push Docker images
         run: |
-          docker push us-central1-docker.pkg.dev/government-assistant-001/my-repo/government-assistant-api
+          docker push us-central1-docker.pkg.dev/government-assistant-001/your-repo/government-assistant-api
 
   deploy:
     runs-on: ubuntu-latest
@@ -80,22 +68,11 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      # Deploy MongoDB z Docker Hub na Cloud Run
-      - name: Deploy to Cloud Run (mongodb)
-        run: |
-          gcloud run deploy mongodb \
-            --image mongo:4.2.16-bionic \
-            --platform managed \
-            --region us-central1 \
-            --allow-unauthenticated \
-            --set-env-vars MONGO_INITDB_ROOT_USERNAME=admin,MONGO_INITDB_ROOT_PASSWORD=password,MONGO_INITDB_DATABASE=government_data
-
-      # Deploy aplikacji (government-assistant-api) na Cloud Run
       - name: Deploy to Cloud Run (government-assistant-api)
         run: |
           gcloud run deploy government-assistant-api \
-            --image us-central1-docker.pkg.dev/government-assistant-001/my-repo/government-assistant-api \
+            --image us-central1-docker.pkg.dev/government-assistant-001/your-repo/government-assistant-api \
             --platform managed \
             --region us-central1 \
             --allow-unauthenticated \
-            --set-env-vars MONGO_URI="mongodb://admin:password@mongodb:27017/government_data",XAI_API_KEY="${{ secrets.XAI_API_KEY }}"
+            --set-env-vars XAI_API_KEY="${{ secrets.XAI_API_KEY }}"
