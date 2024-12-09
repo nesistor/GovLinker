@@ -102,7 +102,7 @@ def analyze_document_results(results: List[dict]) -> DocumentCheckResult:
     is_valid = len(missing_fields) == 0
     return DocumentCheckResult(is_valid=is_valid, missing_fields=missing_fields, errors=errors)
 
-@router.post("/ask", response_model=List[str])
+@router.post("/generate-response", response_model=List[str])
 def ask_question(request: QuestionRequest):
     messages = [
         {"role": "system", "content": "You are a helpful assistant for DMV-related processes and documents."},
